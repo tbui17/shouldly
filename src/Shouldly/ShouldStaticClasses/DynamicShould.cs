@@ -15,11 +15,18 @@ public static partial class DynamicShould
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void HaveProperty(dynamic dynamicTestObject, string propertyName, string? customMessage = null)
     {
-        if (dynamicTestObject is IDynamicMetaObjectProvider)
+        if (dynamicTestObject is ExpandoObject)
         {
             var dynamicAsDictionary = (IDictionary<string, object>)dynamicTestObject;
 
             if (!dynamicAsDictionary.ContainsKey(propertyName))
+            {
+                throw new ShouldAssertException(new ExpectedShouldlyMessage(propertyName, customMessage).ToString());
+            }
+        }
+        else if (dynamicTestObject is DynamicObject e)
+        {
+            if (!e.TryGetMember(new GetMemberBinderWrapper(propertyName), out _))
             {
                 throw new ShouldAssertException(new ExpectedShouldlyMessage(propertyName, customMessage).ToString());
             }
@@ -33,5 +40,11 @@ public static partial class DynamicShould
                 throw new ShouldAssertException(new ExpectedShouldlyMessage(propertyName, customMessage).ToString());
             }
         }
+    }
+
+    private class GetMemberBinderWrapper(string name) : GetMemberBinder(name, false)
+    {
+        public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject? errorSuggestion) =>
+            throw new NotImplementedException();
     }
 }
