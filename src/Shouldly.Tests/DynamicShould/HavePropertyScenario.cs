@@ -33,4 +33,11 @@ public class HavePropertyScenario
         testDynamicObject.Foo = "FooPropertyValue";
         Shouldly.DynamicShould.HaveProperty(testDynamicObject, "Foo");
     }
+    [Fact]
+    public void ShouldPassWithoutIDictionaryImplementation()
+    {
+        dynamic testDynamicObject = new MyDynamicObject();
+        testDynamicObject.Foo = "FooPropertyValue";
+        Shouldly.DynamicShould.HaveProperty(testDynamicObject, "Foo");
+    }
 }
